@@ -63,6 +63,7 @@ fun AppNav() {
                 to = to,
                 fromAmount = fromAmount,
                 toAmount = toAmount,
+
                 onDone = { navController.popBackStack() }
             )
         }

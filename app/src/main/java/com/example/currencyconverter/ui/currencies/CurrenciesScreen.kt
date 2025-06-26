@@ -1,5 +1,6 @@
 package com.example.currencyconverter.ui.currencies
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -17,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -40,6 +43,7 @@ fun CurrenciesScreen(
         while (true) {
             val baseAmount = if (inputMode) amount else 1.0
             viewModel.loadRates(selected, baseAmount)
+
             delay(1000)
         }
     }
@@ -50,7 +54,7 @@ fun CurrenciesScreen(
                 title = { Text("Currencies") },
                 actions = {
                     IconButton(onClick = onHistory) {
-                        Icon(Icons.Default.History, contentDescription = "History")
+                        Icon(Icons.Default.AddCircle, contentDescription = "History")
                     }
                 }
             )
@@ -81,6 +85,7 @@ fun CurrenciesScreen(
             } else rates
             LazyColumn {
                 items(list) { rate ->
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -95,6 +100,7 @@ fun CurrenciesScreen(
                                     amount = 1.0
                                 }
                             },
+
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Row(
@@ -112,6 +118,7 @@ fun CurrenciesScreen(
                                 if (bal != null) {
                                     Text(text = "Balance: %.2f".format(bal), style = MaterialTheme.typography.bodySmall)
                                 }
+
                             }
                             Text(text = String.format("%.2f", rate.value))
                         }
