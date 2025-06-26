@@ -1,12 +1,14 @@
 package com.example.currencyconverter.ui.currencies
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.*
 
 import androidx.compose.runtime.Composable
@@ -27,6 +29,8 @@ import com.example.currencyconverter.domain.entity.displayName
 import com.example.currencyconverter.domain.entity.flagEmoji
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun CurrenciesScreen(
     onSelect: (Currency, Double, Double) -> Unit,
@@ -49,7 +53,7 @@ fun CurrenciesScreen(
                 title = { Text("Currencies") },
                 actions = {
                     IconButton(onClick = onHistory) {
-                        Icon(Icons.Default.History, contentDescription = "History")
+                        Icon(Icons.Default.AddCircle, contentDescription = "History")
                     }
                 }
             )

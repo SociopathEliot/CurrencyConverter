@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.currencyconverter.domain.entity.Currency
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExchangeScreen(
     from: Currency,
