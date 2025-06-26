@@ -7,20 +7,50 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
+    onSelect: (from: Currency, to: Currency, fromAmount: Double, toAmount: Double) -> Unit,
+    var selected by remember { mutableStateOf(Currency.RUB) }
+    var inputMode by remember { mutableStateOf(false) }
+    LaunchedEffect(selected, amount, inputMode) {
+            val baseAmount = if (inputMode) amount else 1.0
+            viewModel.loadRates(selected, baseAmount)
+            if (inputMode) {
+                OutlinedTextField(
+                    value = amount.toString(),
+                    onValueChange = { amount = it.toDoubleOrNull() ?: 1.0 },
+                    trailingIcon = {
+                        IconButton(onClick = { amount = 1.0; inputMode = false }) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear")
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            val accounts = viewModel.accounts.value
+            val list = if (inputMode) {
+                rates.filter { r ->
+                    val acc = accounts.firstOrNull { it.currency == r.currency }
+                    acc != null && acc.amount >= r.value
+                }
+            } else rates
+                items(list) { rate ->
+                            .clickable {
+                                if (inputMode) {
+                                    onSelect(rate.currency, selected, rate.value, amount)
+                                } else if (rate.currency == selected) {
+                                    inputMode = true
+                                } else {
+                                    selected = rate.currency
+                                    amount = 1.0
+                                }
+                            },
+                                val bal = accounts.firstOrNull { it.currency == rate.currency }?.amount
+                                if (bal != null) {
+                                    Text(text = "Balance: %.2f".format(bal), style = MaterialTheme.typography.bodySmall)
+                                }
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.currencyconverter.domain.entity.Currency
 import com.example.currencyconverter.domain.entity.displayName
