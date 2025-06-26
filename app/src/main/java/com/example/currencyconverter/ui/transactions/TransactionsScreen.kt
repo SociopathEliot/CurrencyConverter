@@ -44,6 +44,5 @@ fun TransactionsScreen(onBack: () -> Unit, viewModel: TransactionsViewModel = hi
                 }
             }
         }
-
     }
 }

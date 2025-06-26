@@ -6,9 +6,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 
 import androidx.compose.runtime.Composable
@@ -29,20 +29,21 @@ import com.example.currencyconverter.domain.entity.displayName
 import com.example.currencyconverter.domain.entity.flagEmoji
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun CurrenciesScreen(
-    onSelect: (Currency, Double, Double) -> Unit,
+    onSelect: (from: Currency, to: Currency, fromAmount: Double, toAmount: Double) -> Unit,
     onHistory: () -> Unit,
     viewModel: CurrenciesViewModel = hiltViewModel()
 ) {
-    var selected by remember { mutableStateOf(Currency.USD) }
+    var selected by remember { mutableStateOf(Currency.RUB) }
     var amount by remember { mutableStateOf(1.0) }
+    var inputMode by remember { mutableStateOf(false) }
 
-    LaunchedEffect(selected, amount) {
+    LaunchedEffect(selected, amount, inputMode) {
         while (true) {
-            viewModel.loadRates(selected, amount)
+            val baseAmount = if (inputMode) amount else 1.0
+            viewModel.loadRates(selected, baseAmount)
+
             delay(1000)
         }
     }
@@ -60,21 +61,46 @@ fun CurrenciesScreen(
         }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues).padding(16.dp)) {
-            OutlinedTextField(
-                value = amount.toString(),
-                onValueChange = { amount = it.toDoubleOrNull() ?: 1.0 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (inputMode) {
+                OutlinedTextField(
+                    value = amount.toString(),
+                    onValueChange = { amount = it.toDoubleOrNull() ?: 1.0 },
+                    trailingIcon = {
+                        IconButton(onClick = { amount = 1.0; inputMode = false }) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear")
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
+            val accounts = viewModel.accounts.value
             val rates = viewModel.rates.value
+            val list = if (inputMode) {
+                rates.filter { r ->
+                    val acc = accounts.firstOrNull { it.currency == r.currency }
+                    acc != null && acc.amount >= r.value
+                }
+            } else rates
             LazyColumn {
-                items(rates) { rate ->
+                items(list) { rate ->
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
-                            .clickable { selected = rate.currency; onSelect(rate.currency, amount, rate.value) },
+                            .clickable {
+                                if (inputMode) {
+                                    onSelect(rate.currency, selected, rate.value, amount)
+                                } else if (rate.currency == selected) {
+                                    inputMode = true
+                                } else {
+                                    selected = rate.currency
+                                    amount = 1.0
+                                }
+                            },
+
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Row(
@@ -88,12 +114,16 @@ fun CurrenciesScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(text = rate.currency.displayName(), style = MaterialTheme.typography.titleMedium)
                                 Text(text = rate.currency.name, style = MaterialTheme.typography.bodySmall)
+                                val bal = accounts.firstOrNull { it.currency == rate.currency }?.amount
+                                if (bal != null) {
+                                    Text(text = "Balance: %.2f".format(bal), style = MaterialTheme.typography.bodySmall)
+                                }
+
                             }
                             Text(text = String.format("%.2f", rate.value))
                         }
                     }
                 }
-
             }
         }
     }

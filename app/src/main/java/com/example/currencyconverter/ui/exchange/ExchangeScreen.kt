@@ -15,8 +15,9 @@ import com.example.currencyconverter.domain.entity.Currency
 fun ExchangeScreen(
     from: Currency,
     to: Currency,
-    amount: Double,
-    rate: Double,
+    fromAmount: Double,
+    toAmount: Double,
+
     onDone: () -> Unit,
     viewModel: ExchangeViewModel = hiltViewModel()
 ) {
@@ -29,22 +30,24 @@ fun ExchangeScreen(
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Buy $amount $to", style = MaterialTheme.typography.titleLarge)
-                    Text(text = "for %.2f %s".format(amount * rate, from), style = MaterialTheme.typography.bodyLarge)
-                    Text(text = "Rate: $rate", style = MaterialTheme.typography.bodyMedium)
+                    val rate = fromAmount / toAmount
+                    Text(text = "Buy $toAmount $to", style = MaterialTheme.typography.titleLarge)
+                    Text(text = "for %.2f %s".format(fromAmount, from), style = MaterialTheme.typography.bodyLarge)
+                    Text(text = "Rate: %.4f".format(rate), style = MaterialTheme.typography.bodyMedium)
+
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
-                    viewModel.buy(from, to, amount * rate, amount)
+                    viewModel.buy(from, to, fromAmount, toAmount)
+
                     onDone()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Buy")
             }
-
         }
     }
 }

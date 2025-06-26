@@ -39,28 +39,31 @@ fun AppNav() {
     NavHost(navController, startDestination = "currencies") {
         composable("currencies") {
             CurrenciesScreen(
-                onSelect = { currency, amount, rate ->
-                    navController.navigate("exchange/${currency.name}/$amount/$rate")
+                onSelect = { from, to, fromAmount, toAmount ->
+                    navController.navigate("exchange/${from.name}/${to.name}/$fromAmount/$toAmount")
                 },
                 onHistory = { navController.navigate("transactions") }
             )
         }
         composable(
-            "exchange/{currency}/{amount}/{rate}",
+            "exchange/{from}/{to}/{fromAmount}/{toAmount}",
             arguments = listOf(
-                navArgument("currency") { type = NavType.StringType },
-                navArgument("amount") { type = NavType.StringType },
-                navArgument("rate") { type = NavType.StringType }
+                navArgument("from") { type = NavType.StringType },
+                navArgument("to") { type = NavType.StringType },
+                navArgument("fromAmount") { type = NavType.StringType },
+                navArgument("toAmount") { type = NavType.StringType }
             )
         ) { backStack ->
-            val currency = Currency.valueOf(backStack.arguments?.getString("currency")!!)
-            val amount = backStack.arguments?.getString("amount")!!.toDouble()
-            val rate = backStack.arguments?.getString("rate")!!.toDouble()
+            val from = Currency.valueOf(backStack.arguments?.getString("from")!!)
+            val to = Currency.valueOf(backStack.arguments?.getString("to")!!)
+            val fromAmount = backStack.arguments?.getString("fromAmount")!!.toDouble()
+            val toAmount = backStack.arguments?.getString("toAmount")!!.toDouble()
             ExchangeScreen(
-                from = Currency.USD,
-                to = currency,
-                amount = amount,
-                rate = rate,
+                from = from,
+                to = to,
+                fromAmount = fromAmount,
+                toAmount = toAmount,
+
                 onDone = { navController.popBackStack() }
             )
         }
