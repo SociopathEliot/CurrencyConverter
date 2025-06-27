@@ -9,7 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 
@@ -57,7 +57,7 @@ fun CurrenciesScreen(
                 title = { Text("Currencies") },
                 actions = {
                     IconButton(onClick = onHistory) {
-                        Icon(Icons.Default.AddCircle, contentDescription = "History")
+                        Icon(Icons.Default.History, contentDescription = "History")
                     }
                 }
             )
