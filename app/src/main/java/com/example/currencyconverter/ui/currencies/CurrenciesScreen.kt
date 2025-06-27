@@ -7,8 +7,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 
@@ -56,7 +57,7 @@ fun CurrenciesScreen(
                 title = { Text("Currencies") },
                 actions = {
                     IconButton(onClick = onHistory) {
-                        Icon(Icons.Default.AddCircle, contentDescription = "History")
+                        Icon(Icons.Default.History, contentDescription = "History")
                     }
                 }
             )
@@ -88,7 +89,7 @@ fun CurrenciesScreen(
             LazyColumn {
                 items(list) { rate ->
 
-                    Card(
+                    ElevatedCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
@@ -102,28 +103,44 @@ fun CurrenciesScreen(
                                     amount = 1.0
                                 }
                             },
-
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = rate.currency.flagEmoji(), style = MaterialTheme.typography.headlineMedium)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(text = rate.currency.displayName(), style = MaterialTheme.typography.titleMedium)
-                                Text(text = rate.currency.name, style = MaterialTheme.typography.bodySmall)
-                                val bal = accounts.firstOrNull { it.currency == rate.currency }?.amount
-                                if (bal != null) {
-                                    Text(text = "Balance: %.2f".format(bal), style = MaterialTheme.typography.bodySmall)
-                                }
-
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = if (rate.currency == selected) {
+                                MaterialTheme.colorScheme.primaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
                             }
-                            Text(text = String.format("%.2f", rate.value))
-                        }
+                        )
+                    ) {
+                        val bal = accounts.firstOrNull { it.currency == rate.currency }?.amount
+                        ListItem(
+                            leadingContent = {
+                                Text(
+                                    text = rate.currency.flagEmoji(),
+                                    style = MaterialTheme.typography.headlineMedium
+                                )
+                            },
+                            headlineText = {
+                                Text(text = rate.currency.displayName())
+                            },
+                            supportingText = {
+                                Column {
+                                    Text(text = rate.currency.name)
+                                    if (bal != null) {
+                                        Text(
+                                            text = "Balance: %.2f".format(bal),
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
+                            },
+                            trailingContent = {
+                                Text(
+                                    text = String.format("%.2f", rate.value),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+                        )
                     }
                 }
             }
