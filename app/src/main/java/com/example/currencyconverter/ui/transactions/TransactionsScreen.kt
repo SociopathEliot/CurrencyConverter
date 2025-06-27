@@ -7,8 +7,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
+import com.example.currencyconverter.domain.entity.flagEmoji
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,19 +32,35 @@ fun TransactionsScreen(onBack: () -> Unit, viewModel: TransactionsViewModel = hi
             )
         }
     ) { paddingValues ->
+        val formatter = remember { DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT) }
         LazyColumn(modifier = Modifier.padding(paddingValues).padding(16.dp)) {
             items(viewModel.transactions.value) { tx ->
-                Card(
+                ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "${tx.from.name} -> ${tx.to.name}", style = MaterialTheme.typography.titleMedium)
-                        Text(text = "${tx.fromAmount} ${tx.from} → ${tx.toAmount} ${tx.to}")
-                        Text(text = tx.dateTime.toString(), style = MaterialTheme.typography.bodySmall)
-                    }
+                    ListItem(
+                        leadingContent = {
+                            Text(
+                                text = tx.from.flagEmoji(),
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        },
+                        headlineText = {
+                            Text(text = "${tx.fromAmount} ${tx.from} → ${tx.toAmount} ${tx.to}")
+                        },
+                        supportingText = {
+                            Text(text = tx.dateTime.format(formatter))
+                        },
+                        trailingContent = {
+                            Text(
+                                text = tx.to.flagEmoji(),
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        }
+                    )
                 }
             }
         }
